@@ -2,15 +2,16 @@
 # See index.html for further information.
 
 PKG             := gnutls
-$(PKG)_VERSION  := 3.2.14
-$(PKG)_CHECKSUM := a660dfb59bd6f907eeb5c73c540cdddeb51bf8ae
+$(PKG)_VERSION  := 3.3.10
+$(PKG)_CHECKSUM := b47af4ee116ba2099a24ff7a8e686079f80ec23a
 $(PKG)_SUBDIR   := gnutls-$($(PKG)_VERSION)
 $(PKG)_FILE     := gnutls-$($(PKG)_VERSION).tar.xz
-$(PKG)_URL      := ftp://ftp.gnutls.org/gcrypt/gnutls/v3.2//$($(PKG)_FILE)
-$(PKG)_DEPS     := gcc gettext gmp nettle pcre zlib
+$(PKG)_URL      := http://mirrors.dotsrc.org/gnupg/gnutls/v3.3/$($(PKG)_FILE)
+$(PKG)_URL_2    := ftp://ftp.gnutls.org/gcrypt/gnutls/v3.3//$($(PKG)_FILE)
+$(PKG)_DEPS     := gcc gettext gmp libgnurx nettle zlib
 
 define $(PKG)_UPDATE
-    $(WGET) -q -O- ftp://ftp.gnutls.org/gcrypt/gnutls/v3.2/ | \
+    $(WGET) -q -O- ftp://ftp.gnutls.org/gcrypt/gnutls/v3.3/ | \
     $(SED) -n 's,.*gnutls-\([1-9]\+\.[0-9]\+.[0-9]\+\)\..*,\1,p' | \
     $(SORT) -V | \
     tail -1
@@ -18,9 +19,7 @@ endef
 
 define $(PKG)_BUILD
     $(SED) -i 's, sed , $(SED) ,g' '$(1)/gl/tests/Makefile.am'
-    cd '$(1)' && aclocal -I m4 -I gl/m4 -I src/libopts/m4 --install
-    cd '$(1)' && autoconf
-    cd '$(1)' && automake --add-missing
+    cd '$(1)' && autoreconf -fi -I m4 -I gl/m4 -I src/libopts/m4
     # skip the run test for libregex support since we are cross compiling
     $(SED) -i 's/libopts_cv_with_libregex=no/libopts_cv_with_libregex=yes/g;' '$(1)/configure'
     # AI_ADDRCONFIG referenced by src/serv.c but not provided by mingw.
@@ -33,10 +32,7 @@ define $(PKG)_BUILD
         --disable-doc \
         --enable-local-libopts \
         --with-included-libtasn1 \
-        --with-libregex='$(PREFIX)/$(TARGET)' \
-        --with-regex-header=pcreposix.h \
-        --with-libregex-cflags="`'$(TARGET)-pkg-config' libpcreposix --cflags`" \
-        --with-libregex-libs="`'$(TARGET)-pkg-config' libpcreposix --libs`" \
+        --with-libregex-libs="-lgnurx" \
         --without-p11-kit \
         --disable-silent-rules \
         CPPFLAGS='-DWINVER=0x0501 -DAI_ADDRCONFIG=0x0400 -DIPV6_V6ONLY=27' \

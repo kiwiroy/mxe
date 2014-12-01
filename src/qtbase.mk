@@ -3,12 +3,12 @@
 
 PKG             := qtbase
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 5.2.1
-$(PKG)_CHECKSUM := 32cfec62138a478361711cb5f6c8d1c60a3d8c08
+$(PKG)_VERSION  := 5.3.2
+$(PKG)_CHECKSUM := faf4f33aa7e8dabcdcdf5f10824263beebbccd96
 $(PKG)_SUBDIR   := $(PKG)-opensource-src-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-opensource-src-$($(PKG)_VERSION).tar.xz
-$(PKG)_URL      := http://download.qt-project.org/official_releases/qt/5.2/$($(PKG)_VERSION)/submodules/$($(PKG)_FILE)
-$(PKG)_DEPS     := gcc postgresql freetds openssl zlib libpng jpeg sqlite pcre fontconfig freetype dbus icu4c
+$(PKG)_URL      := http://download.qt-project.org/official_releases/qt/5.3/$($(PKG)_VERSION)/submodules/$($(PKG)_FILE)
+$(PKG)_DEPS     := gcc postgresql freetds openssl harfbuzz zlib libpng jpeg sqlite pcre fontconfig freetype dbus icu4c
 
 define $(PKG)_UPDATE
     $(WGET) -q -O- http://download.qt-project.org/official_releases/qt/5.1/ | \
@@ -47,6 +47,9 @@ define $(PKG)_BUILD
             -system-libpng \
             -system-libjpeg \
             -system-sqlite \
+            -fontconfig \
+            -system-freetype \
+            -system-harfbuzz \
             -system-pcre \
             -openssl-linked \
             -dbus-linked \
@@ -80,6 +83,7 @@ define $(PKG)_BUILD
      printf 'test-qtbase-pkgconfig.exe\r\n';) \
      > '$(PREFIX)/$(TARGET)/bin/test-qt5.bat'
 endef
+
 
 $(PKG)_BUILD_SHARED = $(subst -static ,-shared ,\
                       $(subst -qt-sql-,-plugin-sql-,\

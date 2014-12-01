@@ -20,7 +20,7 @@ define $(PKG)_BUILD
     echo 'mxe: lib $(if $(BUILD_STATIC), lib/$$(LIB.STATIC) lib/$$(LIB.STATIC.MX), lib/$$(LIB.SHARED) lib/$$(LIB.SHARED.MX))' >> '$(1)/Makefile'
 
     # GCC 4.8.2 seems to miscompile the shared DLL with -O2
-    make -C '$(1)' \
+    $(MAKE) -C '$(1)' \
         GLEW_DEST=$(PREFIX)/$(TARGET) \
         SYSTEM=linux-mingw32 \
         CC=$(TARGET)-gcc \
@@ -41,10 +41,12 @@ define $(PKG)_BUILD
     $(if $(BUILD_STATIC),
         $(INSTALL) -m644 '$(1)/lib/libGLEW.a' '$(1)/lib/libGLEWmx.a' '$(PREFIX)/$(TARGET)/lib/'
         $(INSTALL) -m644 '$(1)/lib/libGLEW.a' '$(PREFIX)/$(TARGET)/lib/libglew32s.a'
+        $(INSTALL) -m644 '$(1)/lib/libGLEW.a' '$(PREFIX)/$(TARGET)/lib/libglew32.a'
     ,
         $(INSTALL) -m644 '$(1)/lib/GLEW.dll' '$(1)/lib/GLEWmx.dll' '$(PREFIX)/$(TARGET)/bin/'
         $(INSTALL) -m644 '$(1)/lib/libGLEW.dll.a' '$(1)/lib/libGLEWmx.dll.a' '$(PREFIX)/$(TARGET)/lib/'
         $(INSTALL) -m644 '$(1)/lib/libGLEW.dll.a' '$(PREFIX)/$(TARGET)/lib/libglew32s.dll.a'
+        $(INSTALL) -m644 '$(1)/lib/libGLEW.dll.a' '$(PREFIX)/$(TARGET)/lib/libglew32.dll.a'
     )
     $(INSTALL) -d '$(PREFIX)/$(TARGET)/lib/pkgconfig'
     $(INSTALL) -m644 '$(1)/glew.pc' '$(PREFIX)/$(TARGET)/lib/pkgconfig/'

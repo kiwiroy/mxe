@@ -4,7 +4,7 @@
 PKG             := qtactiveqt
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION   = $(qtbase_VERSION)
-$(PKG)_CHECKSUM := 31441f01c9d271c61cf289e372af3f4f9f0478e1
+$(PKG)_CHECKSUM := 8604625f1cb9e652a66ea0cb4ab2bea101ba5b5f
 $(PKG)_SUBDIR    = $(subst qtbase,qtactiveqt,$(qtbase_SUBDIR))
 $(PKG)_FILE      = $(subst qtbase,qtactiveqt,$(qtbase_FILE))
 $(PKG)_URL       = $(subst qtbase,qtactiveqt,$(qtbase_URL))
@@ -19,3 +19,4 @@ define $(PKG)_BUILD
     $(MAKE) -C '$(1)' -j '$(JOBS)'
     $(MAKE) -C '$(1)' -j 1 install
 endef
+

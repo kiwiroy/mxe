@@ -3,8 +3,8 @@
 
 PKG             := dbus
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 1.8.2
-$(PKG)_CHECKSUM := 00920d24935ce1fd28cf168b09706e09bf6d4746
+$(PKG)_VERSION  := 1.9.4
+$(PKG)_CHECKSUM := 4e5a9ccec41702d62f7e88f29e5e50c8811b4f94
 $(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := http://$(PKG).freedesktop.org/releases/$(PKG)/$($(PKG)_FILE)
@@ -20,7 +20,6 @@ endef
 define $(PKG)_BUILD
     cd '$(1)' && ./configure \
         $(MXE_CONFIGURE_OPTS) \
-        --with-xml=expat \
         --disable-tests \
         --disable-verbose-mode \
         --disable-asserts \
@@ -28,7 +27,7 @@ define $(PKG)_BUILD
         --disable-silent-rules \
         --disable-launchd \
         --disable-doxygen-docs \
-        --disable-xml--docs \
+        --disable-xml-docs \
         CFLAGS='-DPROCESS_QUERY_LIMITED_INFORMATION=0x1000'
     $(MAKE) -C '$(1)' -j '$(JOBS)' install
 endef

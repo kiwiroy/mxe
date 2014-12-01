@@ -4,7 +4,7 @@
 PKG             := qtwebkit
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION   = $(qtbase_VERSION)
-$(PKG)_CHECKSUM := a3c6749c66d0192ef286c8a08c325124d52d9bc2
+$(PKG)_CHECKSUM := 5ac040cd1fbf953ff9abc0502489bff8f4aa5ac2
 $(PKG)_SUBDIR    = $(subst qtbase,qtwebkit,$(qtbase_SUBDIR))
 $(PKG)_FILE      = $(subst qtbase,qtwebkit,$(qtbase_FILE))
 $(PKG)_URL       = $(subst qtbase,qtwebkit,$(qtbase_URL))
@@ -22,4 +22,3 @@ define $(PKG)_BUILD_SHARED
     $(MAKE) -C '$(1)' -j 1 install
 endef
 
-$(PKG)_BUILD_i686-pc-mingw32 =

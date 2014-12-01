@@ -3,18 +3,14 @@
 
 PKG             := vmime
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 51e753d
-$(PKG)_CHECKSUM := 69f82b5723732460edc7adee0cbf3a56b3f795c0
+$(PKG)_VERSION  := 31df617
+$(PKG)_CHECKSUM := 291d9fb4d689d630d132f18fb6e6086b23de5bfd
 $(PKG)_SUBDIR   := kisli-vmime-$($(PKG)_VERSION)
 $(PKG)_FILE     := $(PKG)-$($(PKG)_VERSION).tar.gz
 $(PKG)_URL      := https://github.com/kisli/vmime/tarball/$($(PKG)_VERSION)/$($(PKG)_FILE)
 $(PKG)_DEPS     := gcc gnutls libgsasl pthreads zlib
 
-define $(PKG)_UPDATE
-    $(WGET) -q -O- 'https://github.com/kisli/vmime/commits/master' | \
-    $(SED) -n 's#.*<span class="sha">\([^<]\{7\}\)[^<]\{3\}<.*#\1#p' | \
-    head -1
-endef
+$(PKG)_UPDATE    = $(call MXE_GET_GITHUB_SHA, kisli/vmime, master)
 
 define $(PKG)_BUILD
     # The following hint is probably needed for ICU:
@@ -27,8 +23,8 @@ define $(PKG)_BUILD
         -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL=False \
         -DVMIME_HAVE_MLANG_H=False \
         -DCMAKE_CXX_FLAGS='-DWINVER=0x0501 -DAI_ADDRCONFIG=0x0400 -DIPV6_V6ONLY=27' \
-        -DVMIME_BUILD_STATIC_LIBRARY=ON \
-        -DVMIME_BUILD_SHARED_LIBRARY=OFF \
+        -DVMIME_BUILD_STATIC_LIBRARY=$(if $(BUILD_STATIC),ON,OFF) \
+        -DVMIME_BUILD_SHARED_LIBRARY=$(if $(BUILD_SHARED),ON,OFF) \
         -DVMIME_BUILD_SAMPLES=OFF \
         -DVMIME_BUILD_DOCUMENTATION=OFF \
         -DCMAKE_MODULE_PATH='$(1)/cmake' \
@@ -44,7 +40,9 @@ define $(PKG)_BUILD
 
     $(MAKE) -C '$(1)' -j '$(JOBS)'
     $(SED) -i 's,^\(Libs.private:.* \)$(PREFIX)/$(TARGET)/lib/libiconv\.a,\1-liconv,g' $(1)/vmime.pc
+    $(if $(BUILD_STATIC),$(SED) -i 's/^\(Cflags:.* \)/\1 -DVMIME_STATIC/g' $(1)/vmime.pc)
     $(MAKE) -C '$(1)' install
+    $(if $(BUILD_SHARED),$(INSTALL) -m644 '$(1)/build/bin/libvmime.dll' '$(PREFIX)/$(TARGET)/bin/')
 
     $(SED) -i 's/posix/windows/g;' '$(1)/examples/example6.cpp'
     $(TARGET)-g++ -s -std=c++0x -o '$(1)/examples/test-vmime.exe' \
@@ -52,5 +50,3 @@ define $(PKG)_BUILD
         `'$(TARGET)-pkg-config' vmime --cflags --libs`
     $(INSTALL) -m755 '$(1)/examples/test-vmime.exe' '$(PREFIX)/$(TARGET)/bin/'
 endef
-
-$(PKG)_BUILD_SHARED =

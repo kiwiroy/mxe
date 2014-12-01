@@ -12,11 +12,7 @@ $(PKG)_DEPS     :=
 
 $(PKG)_DEPS_$(BUILD) := automake
 
-define $(PKG)_UPDATE_
-    $(WGET) -q -O- 'https://github.com/pkgconf/pkgconf/commits/master' | \
-    $(SED) -n 's#.*<span class="sha">\([^<]\{7\}\)[^<]\{3\}<.*#\1#p' | \
-    head -1
-endef
+$(PKG)_UPDATE    = $(call MXE_GET_GITHUB_SHA, pkgconf/pkgconf, master)
 
 define $(PKG)_UPDATE
     echo 'Warning: Updates are temporarily disabled for package pkgconf.' >&2;
@@ -59,13 +55,17 @@ define $(PKG)_BUILD_COMMON
      echo 'set(CMAKE_CXX_COMPILER $(PREFIX)/bin/$(TARGET)-g++)'; \
      echo 'set(CMAKE_Fortran_COMPILER $(PREFIX)/bin/$(TARGET)-gfortran)'; \
      echo 'set(CMAKE_RC_COMPILER $(PREFIX)/bin/$(TARGET)-windres)'; \
+     echo 'set(CMAKE_MODULE_PATH "$(PWD)/src/cmake" $${CMAKE_MODULE_PATH}) # For mxe FindPackage scripts'; \
+     echo 'set(CMAKE_INSTALL_PREFIX $(PREFIX)/$(TARGET) CACHE PATH "Installation Prefix")'; \
+     echo 'set(CMAKE_BUILD_TYPE Release CACHE STRING "Debug|Release|RelWithDebInfo|MinSizeRel")'; \
+     echo 'set(CMAKE_CROSS_COMPILING ON) # Workaround for http://www.cmake.org/Bug/view.php?id=14075'; \
+     echo 'set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff <FLAGS> <DEFINES> -o <OBJECT> <SOURCE>") # Workaround for buggy windres rules'; \
      echo 'set(HDF5_C_COMPILER_EXECUTABLE $(PREFIX)/bin/$(TARGET)-h5cc)'; \
      echo 'set(HDF5_CXX_COMPILER_EXECUTABLE $(PREFIX)/bin/$(TARGET)-h5c++)'; \
      echo 'set(PKG_CONFIG_EXECUTABLE $(PREFIX)/bin/$(TARGET)-pkg-config)'; \
      echo 'set(QT_QMAKE_EXECUTABLE $(PREFIX)/$(TARGET)/qt/bin/qmake)'; \
-     echo 'set(CMAKE_INSTALL_PREFIX $(PREFIX)/$(TARGET) CACHE PATH "Installation Prefix")'; \
-     echo 'set(CMAKE_BUILD_TYPE Release CACHE STRING "Debug|Release|RelWithDebInfo|MinSizeRel")') \
-     > '$(CMAKE_TOOLCHAIN_FILE)'
+     echo 'set(Boost_THREADAPI "win32")'; \
+     ) > '$(CMAKE_TOOLCHAIN_FILE)'
 endef
 
 define $(PKG)_BUILD
